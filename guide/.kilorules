@@ -1,0 +1,19 @@
+# Execution Rules for Kilo Code
+
+1. SCOPE & BOUNDARIES:
+   - Read the "System Overview" in `task.md` to understand the big picture.
+   - Execute ONLY the specific phase currently marked in progress. Do NOT jump ahead to future phases.
+   - Do NOT touch or refactor unrelated files outside the scope of the current task.
+
+2. PHASE APPROVAL REQUIREMENT:
+   - Complete ONLY ONE PHASE at a time.
+   - Once all items in a single phase are finished, update `progress.md` and mark the phase items as completed in `task.md`.
+   - STOP IMMEDIATELY and ask for explicit user permission before starting the next phase.
+
+3. STOPPING CONDITION:
+   - Once code compiles/renders cleanly without syntax or build errors, summarize your changes and STOP.
+   - Do NOT run endless loops on ESLint audits, curls, or extra refactoring.
+
+4. DYNAMIC CONFIGURATION:
+   - Always derive branding, naming, currency, logo, and active modules from `institution.config.ts`.
+   - Never hardcode institution names or specific theme colors directly in components.

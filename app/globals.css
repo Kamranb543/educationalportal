@@ -1,26 +1,97 @@
 @import "tailwindcss";
 
+/* Config-driven theme tokens (values injected at runtime from institution.config.ts). */
 :root {
-  --background: #ffffff;
+  --app-primary: #0f172a;
+  --app-secondary: #475569;
+  --app-accent: #2563eb;
+  --app-background: #f8fafc;
+  --app-card: #ffffff;
+  --app-muted: #e2e8f0;
   --foreground: #171717;
 }
 
 @theme inline {
-  --color-background: var(--background);
+  --color-background: var(--app-background);
   --color-foreground: var(--foreground);
+  --color-primary: var(--app-primary);
+  --color-secondary: var(--app-secondary);
+  --color-accent: var(--app-accent);
+  --color-card: var(--app-card);
+  --color-muted: var(--app-muted);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+body {
+  background: var(--app-background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Micro-animation utilities (Phase 11). */
+@keyframes emp-modal-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes emp-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes emp-drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes emp-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.emp-modal-pop {
+  animation: emp-modal-pop 200ms ease-in-out;
+}
+
+.emp-fade {
+  animation: emp-fade 200ms ease-in-out;
+}
+
+.emp-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--app-muted) 25%,
+    color-mix(in srgb, var(--app-muted) 55%, var(--app-card)) 50%,
+    var(--app-muted) 75%
+  );
+  background-size: 200% 100%;
+  animation: emp-shimmer 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .emp-modal-pop,
+  .emp-fade,
+  .emp-drawer-in,
+  .emp-skeleton {
+    animation: none;
+  }
 }
