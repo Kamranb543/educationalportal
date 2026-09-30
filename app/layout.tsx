@@ -36,12 +36,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       data-theme={config.branding.themeMode}
     >
       <body className="min-h-full flex flex-col">
-        <AuthProvider>
-          <StoreProvider>
+        <StoreProvider>
+          <AuthProvider>
             <AppShell>{children}</AppShell>
-          </StoreProvider>
-          <Toaster />
-        </AuthProvider>
+          </AuthProvider>
+        </StoreProvider>
+        <Toaster />
       </body>
     </html>
   );

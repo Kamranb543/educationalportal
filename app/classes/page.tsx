@@ -1,10 +1,6 @@
-import { RequireRoute } from "@/components/auth/require-permission";
-import { ClassesManager } from "@/components/directories/classes-manager";
+import { redirect } from "next/navigation";
 
-export default function ClassesPage() {
-  return (
-    <RequireRoute href="/classes">
-      <ClassesManager />
-    </RequireRoute>
-  );
+// Consolidated into the Class Directory hub (Phase 12).
+export default function ClassesRedirect() {
+  redirect("/class-directory");
 }

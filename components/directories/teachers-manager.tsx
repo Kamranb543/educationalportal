@@ -76,14 +76,15 @@ export function TeachersManager() {
   }
 
   function handleSubmit(values: TeacherFormValues) {
-    const { courseIds: _courseIds, ...fields } = values;
-    void _courseIds;
+    const { courseIds = [], ...fields } = values;
     if (editing) {
       store.updateTeacher(editing.id, fields);
+      store.setTeacherSubjects(editing.id, courseIds);
       toast.success(`${terminology.teacherLabel} updated`, { description: fields.name });
       return;
     }
     const created = store.addTeacher(fields);
+    store.setTeacherSubjects(created.id, courseIds);
     toast.success(`${terminology.teacherLabel} added`, { description: `${created.name} · ${created.employeeId}` });
   }
 
@@ -133,7 +134,9 @@ export function TeachersManager() {
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {rows.map((t) => {
               const assignedClasses = store.classes.filter((c) => c.teacherId === t.id);
-              const assignedCourses = store.courses.filter((c) => c.teacherId === t.id);
+              const assignedCourses = store.courses.filter((c) =>
+                store.getCourseIdsForTeacher(t.id).includes(c.id),
+              );
               const latestPayslip = store.getPayrollForTeacher(t.id).at(-1);
               return (
                 <div

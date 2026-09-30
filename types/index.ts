@@ -63,31 +63,79 @@ export interface Student {
   classId: string;
   admissionDate: string;
   status: AccountStatus;
+  /** Monthly fee concession (discount) granted by an admin. */
+  feeConcession?: number;
+}
+
+/** A single teaching unit in a subject syllabus. */
+export interface SyllabusTopic {
+  id: string;
+  title: string;
+  /** Chapters covered, e.g. "1-4". */
+  testRange: string;
+}
+
+export interface SyllabusChapter {
+  id: string;
+  title: string;
+  topics: SyllabusTopic[];
 }
 
 export interface Course {
   id: string;
   code: string;
   title: string;
-  /** Assigned teacher (tch-xx). */
-  teacherId: string;
-  creditHours: number;
-  /** Tuition charged per enrolled student, per month. */
-  feePerStudent: number;
   description: string;
+  /** Structured syllabus outline (chapters → topics → test ranges). */
+  syllabus: SyllabusChapter[];
+}
+
+export type WeekDay = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
+
+/** A master timetable period (lecture or break) defining the schedule rows. */
+export interface SchoolPeriod {
+  id: string;
+  label: string;
+  start: string;
+  end: string;
+  kind: "lecture" | "break";
+}
+
+/** One scheduled lecture slot for a class batch (timetable cell). */
+export interface ClassSession {
+  id: string;
+  day: WeekDay;
+  /** Lecture start/end in HH:MM. */
+  start: string;
+  end: string;
+  /** Subject taught in this slot (crs-xx). */
+  courseId: string;
+  room: string;
+  /** Optional explicit teacher override for this slot. */
+  teacherId?: string;
+  /** Master period (per-school timetable period) this slot occupies. */
+  periodId?: string;
 }
 
 export interface ClassBatch {
   id: string;
   name: string;
+  /** Section identifier, e.g. "A" / "B". */
+  section: string;
   academicYear: string;
-  /** Courses taught in this batch (crs-xx). */
+  /** Subjects taught in this batch (crs-xx). */
   courseIds: string[];
+  /** Teacher assigned to each subject in this batch (courseId → tch-xx). */
+  subjectTeachers: Record<string, string>;
   /** Lead teacher responsible for the batch (tch-xx). */
   teacherId: string;
   room: string;
   schedule: string;
   capacity: number;
+  /** Consolidated monthly fee billed per student (e.g. PKR 1,500/mo). */
+  monthlyFee: number;
+  /** Weekly timetable slots for this batch. */
+  sessions: ClassSession[];
 }
 
 export interface AttendanceRecord {
@@ -177,6 +225,50 @@ export interface TeacherAttendanceRecord {
   date: string;
   status: AttendanceStatus;
   markedAt: string;
+}
+
+export type InviteTokenRole = "teacher" | "student";
+export type InviteTokenStatus = "active" | "used" | "revoked";
+
+/** Single-use invitation issued by an admin to onboard a teacher/trainee. */
+export interface InviteToken {
+  id: string;
+  /** Human-readable code, e.g. "TCH-8921" or "STU-4410". */
+  code: string;
+  role: InviteTokenRole;
+  /** Offered monthly salary (teacher) or fee discount % (student). */
+  offeredSalary: number | null;
+  feeDiscount: number | null;
+  contractNotes: string;
+  createdBy: string;
+  createdAt: string;
+  /** ISO date after which the token can no longer be redeemed. */
+  expiresAt: string;
+  status: InviteTokenStatus;
+}
+
+export type OnboardingStatus = "pending" | "approved" | "rejected";
+
+/** A registration submitted against an invitation token, awaiting admin review. */
+export interface OnboardingApplication {
+  id: string;
+  tokenCode: string;
+  role: InviteTokenRole;
+  name: string;
+  email: string;
+  phone: string;
+  qualification: string;
+  /** Snapshot of the token's agreed terms at submission time. */
+  offeredSalary: number | null;
+  feeDiscount: number | null;
+  contractNotes: string;
+  /** Class + subjects the admin assigns on approval (teacher). */
+  classId: string | null;
+  courseIds: string[];
+  submittedAt: string;
+  status: OnboardingStatus;
+  reviewedBy: string | null;
+  reviewedAt: string | null;
 }
 
 /** Aggregated shape of the whole mock database. */

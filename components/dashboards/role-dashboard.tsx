@@ -101,8 +101,11 @@ function TeacherView() {
   if (!teacher) {
     return <p className="text-sm text-secondary">No faculty profile linked to this account.</p>;
   }
-  const myClasses = store.classes.filter((c) => c.teacherId === teacher.id);
-  const myCourses = store.courses.filter((c) => c.teacherId === teacher.id);
+  const subjectCourseIds = store.getCourseIdsForTeacher(teacher.id);
+  const myClasses = store.classes.filter(
+    (c) => c.teacherId === teacher.id || subjectCourseIds.some((id) => c.courseIds.includes(id)),
+  );
+  const myCourses = store.courses.filter((c) => subjectCourseIds.includes(c.id));
   const payslips = store.getPayrollForTeacher(teacher.id).slice(-3).reverse();
 
   return (
@@ -213,7 +216,8 @@ function StudentView() {
                 <div key={id} className="rounded-lg border border-muted p-3">
                   <p className="text-sm font-medium text-primary">{course.title}</p>
                   <p className="text-xs text-secondary">
-                    {course.code} &middot; {store.getTeacherById(course.teacherId)?.name ?? "TBA"}
+                    {course.code} &middot;{" "}
+                    {store.getTeacherById(cls.subjectTeachers[id] ?? cls.teacherId)?.name ?? "TBA"}
                   </p>
                 </div>
               );

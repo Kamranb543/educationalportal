@@ -7,11 +7,11 @@ import { config } from "@/lib/config";
 import { sidebarTheme, readableTextOn } from "@/lib/theme";
 import { BrandIdentity } from "@/components/shell/brand";
 import { roleLabel, useAuth } from "@/lib/auth/auth-context";
-import { filterNavItems } from "@/components/shell/nav-items";
+import { filterNavGroups } from "@/components/shell/nav-items";
 
 /**
  * Mobile navigation: a hamburger trigger (< lg where the sidebar is hidden)
- * that opens a slide-out sheet with the same role/module-filtered links.
+ * that opens a slide-out sheet with the same grouped, role-filtered links.
  */
 export function MobileNav() {
   const pathname = usePathname();
@@ -19,7 +19,7 @@ export function MobileNav() {
   const [open, setOpen] = useState(false);
   const theme = sidebarTheme(config);
   const itemText = readableTextOn(theme.backgroundColor);
-  const items = filterNavItems(currentRole);
+  const groups = filterNavGroups(currentRole);
 
   useEffect(() => {
     if (!open) return;
@@ -70,32 +70,39 @@ export function MobileNav() {
           <BrandIdentity />
         </div>
         <nav className="flex-1 overflow-y-auto px-3 py-4">
-          <ul className="space-y-1">
-            {items.map((item) => {
-              const active =
-                item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
-              return (
-                <li key={item.href}>
-                <Link
-                  href={item.href}
-                  aria-current={active ? "page" : undefined}
-                  onClick={() => setOpen(false)}
-                  className="block rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ease-in-out hover:bg-black/10"
-                    style={
-                      active
-                        ? {
-                            background: theme.activeItemColor,
-                            color: readableTextOn(theme.activeItemColor),
-                          }
-                        : { color: itemText }
-                    }
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+          {groups.map((group) => (
+            <div key={group.title} className="mb-4">
+              <p className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-wider opacity-50">
+                {group.title}
+              </p>
+              <ul className="space-y-1">
+                {group.items.map((item) => {
+                  const active =
+                    item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+                  return (
+                    <li key={item.href}>
+                      <Link
+                        href={item.href}
+                        aria-current={active ? "page" : undefined}
+                        onClick={() => setOpen(false)}
+                        className="block rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ease-in-out hover:bg-black/10"
+                        style={
+                          active
+                            ? {
+                                background: theme.activeItemColor,
+                                color: readableTextOn(theme.activeItemColor),
+                              }
+                            : { color: itemText }
+                        }
+                      >
+                        {item.label}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
         </nav>
         <div className="px-5 py-4 text-xs opacity-60">
           {config.identity.shortName} · {roleLabel(currentRole)}

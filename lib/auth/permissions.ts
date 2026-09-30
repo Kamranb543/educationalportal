@@ -13,6 +13,11 @@ export type Permission =
   | "manageTeachers"
   | "viewCourses"
   | "viewClasses"
+  | "manageClasses"
+  | "viewSubjects"
+  | "manageSubjects"
+  | "viewTimetable"
+  | "manageOnboarding"
   | "markAttendance"
   | "viewOwnAttendance"
   | "viewOwnVouchers"
@@ -43,6 +48,11 @@ export const ROLE_PERMISSIONS: Record<Permission, readonly Role[]> = {
 
   viewCourses: ALL_ROLES,
   viewClasses: ALL_ROLES,
+  manageClasses: ["super_admin", "admin"],
+  viewSubjects: ALL_ROLES,
+  manageSubjects: ["super_admin", "admin"],
+  viewTimetable: ALL_ROLES,
+  manageOnboarding: ["super_admin", "admin"],
 
   markAttendance: ["super_admin", "admin", "teacher"],
   viewOwnAttendance: ["student"],
@@ -82,6 +92,10 @@ export function hasAllPermissions(role: Role | null, permissions: Permission[]):
 export const ROUTE_PERMISSIONS: Record<string, Permission> = {
   "/students": "viewStudents",
   "/teachers": "viewTeachers",
+  "/class-directory": "viewClasses",
+  "/subjects": "viewSubjects",
+  "/timetable": "viewTimetable",
+  "/onboarding-approvals": "manageOnboarding",
   "/attendance": "markAttendance",
   "/finance": "viewFinance",
   "/expenses": "manageExpenses",

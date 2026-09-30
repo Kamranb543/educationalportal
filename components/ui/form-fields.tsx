@@ -27,6 +27,8 @@ export function TextField({
   label,
   error,
   prefix,
+  wrapperClassName,
+  fieldClassName,
   ...props
 }: InputHTMLAttributes<HTMLInputElement> & {
   id: string;
@@ -34,9 +36,13 @@ export function TextField({
   error?: string;
   /** Currency symbol prefix, e.g. config.currencySymbol. */
   prefix?: string;
+  /** Extra classes on the wrapping div (layout). */
+  wrapperClassName?: string;
+  /** Extra classes appended to the input element. */
+  fieldClassName?: string;
 }) {
   return (
-    <div>
+    <div className={wrapperClassName}>
       <Label htmlFor={id}>{label}</Label>
       <div className="relative">
         {prefix && (
@@ -46,7 +52,7 @@ export function TextField({
         )}
         <input
           id={id}
-          className={`${fieldClass(error)} ${prefix ? "pl-10" : ""}`}
+          className={`${fieldClass(error)} ${prefix ? "pl-10" : ""} ${fieldClassName ?? ""}`}
           aria-invalid={error ? true : undefined}
           {...props}
         />
@@ -61,17 +67,26 @@ export function SelectField({
   label,
   error,
   children,
+  wrapperClassName,
+  fieldClassName,
   ...props
 }: SelectHTMLAttributes<HTMLSelectElement> & {
   id: string;
   label: string;
   error?: string;
   children: ReactNode;
+  wrapperClassName?: string;
+  fieldClassName?: string;
 }) {
   return (
-    <div>
+    <div className={wrapperClassName}>
       <Label htmlFor={id}>{label}</Label>
-      <select id={id} className={fieldClass(error)} aria-invalid={error ? true : undefined} {...props}>
+      <select
+        id={id}
+        className={`${fieldClass(error)} ${fieldClassName ?? ""}`}
+        aria-invalid={error ? true : undefined}
+        {...props}
+      >
         {children}
       </select>
       <ErrorText error={error} />

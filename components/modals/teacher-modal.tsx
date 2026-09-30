@@ -60,9 +60,7 @@ function TeacherForm({
   const courses = store.courses;
   const [values, setValues] = useState<Partial<TeacherFormValues>>(() => ({
     ...initialValues(teacher),
-    courseIds: teacher
-      ? courses.filter((c) => c.teacherId === teacher.id).map((c) => c.id)
-      : [],
+    courseIds: teacher ? store.getCourseIdsForTeacher(teacher.id) : [],
   }));
   const [errors, setErrors] = useState<Record<string, string>>({});
 

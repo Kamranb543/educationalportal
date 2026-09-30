@@ -6,24 +6,25 @@ import { Sidebar } from "@/components/shell/sidebar";
 import { Header } from "@/components/shell/header";
 import { useAuth } from "@/lib/auth/auth-context";
 
-const PUBLIC_PATH = "/login";
+/** Unauthenticated surfaces: sign-in page and token redemption (onboarding). */
+const PUBLIC_PATHS = ["/login", "/onboard"];
 
 /**
  * Application frame + session gate. Authenticated users get the Sidebar/Header
- * shell; the /login route renders bare; unauthenticated users are redirected to
+ * shell; public routes render bare; unauthenticated users are redirected to
  * /login. This protects the entire shell surface (all non-public routes).
  */
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, hydrated } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
-  const isPublic = pathname === PUBLIC_PATH;
+  const isPublic = PUBLIC_PATHS.includes(pathname);
 
   useEffect(() => {
     if (!hydrated) return;
-    if (!isAuthenticated && !isPublic) router.replace(PUBLIC_PATH);
-    if (isAuthenticated && isPublic) router.replace("/");
-  }, [hydrated, isAuthenticated, isPublic, router]);
+    if (!isAuthenticated && !isPublic) router.replace("/login");
+    if (isAuthenticated && pathname === "/login") router.replace("/");
+  }, [hydrated, isAuthenticated, isPublic, pathname, router]);
 
   // Bounce the wrong session state without flashing the underlying page.
   if (!hydrated) return null;

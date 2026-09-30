@@ -10,8 +10,8 @@ import {
   useState,
 } from "react";
 import type { Role, User } from "@/types";
-import { users } from "@/data/users";
 import { config, terminology } from "@/lib/config";
+import { useStore } from "@/lib/store/store-context";
 
 const STORAGE_KEY = "emp.auth.currentUserId";
 const AUTH_SESSION_FLAG = "emp.auth.session";
@@ -48,13 +48,18 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-function userById(id: string): User | undefined {
-  return users.find((u) => u.id === id);
-}
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const store = useStore();
+  const users = store.users;
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
+
+  // userById closes over reactive store users so onboarding-approved accounts
+  // (created at runtime) are valid session targets too.
+  const userById = useCallback(
+    (id: string): User | undefined => users.find((u) => u.id === id),
+    [users],
+  );
 
   // Restore a persisted session after mount (localStorage is client-only).
   useEffect(() => {
@@ -69,6 +74,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       /* storage unavailable — stay unauthenticated */
     }
     setHydrated(true);
+    // Run once on mount; userById is intentionally excluded to avoid
+    // re-hydrating on every user-list change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Persist every switch while a session is active.
@@ -87,33 +95,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [currentUserId, hydrated]);
 
-  const login = useCallback((userId: string) => {
-    if (userById(userId)) setCurrentUserId(userId);
-  }, []);
+  const login = useCallback(
+    (userId: string) => {
+      if (userById(userId)) setCurrentUserId(userId);
+    },
+    [userById],
+  );
 
-  const loginWithCredentials = useCallback((email: string, password: string): boolean => {
-    const match = users.find(
-      (u) =>
-        u.email.toLowerCase() === email.trim().toLowerCase() &&
-        u.password === password,
-    );
-    if (match) {
-      setCurrentUserId(match.id);
-      return true;
-    }
-    return false;
-  }, []);
+  const loginWithCredentials = useCallback(
+    (email: string, password: string): boolean => {
+      const match = users.find(
+        (u) =>
+          u.email.toLowerCase() === email.trim().toLowerCase() &&
+          u.password === password,
+      );
+      if (match) {
+        setCurrentUserId(match.id);
+        return true;
+      }
+      return false;
+    },
+    [users],
+  );
 
   const logout = useCallback(() => setCurrentUserId(null), []);
 
   const usersForRole = useCallback(
     (role: Role) => users.filter((u) => u.role === role),
-    [],
+    [users],
   );
 
   const currentUser = useMemo<User | null>(
     () => (currentUserId ? userById(currentUserId) ?? null : null),
-    [currentUserId],
+    [currentUserId, userById],
   );
 
   const value = useMemo<AuthContextValue>(
@@ -128,7 +142,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logout,
       hydrated,
     }),
-    [currentUser, usersForRole, login, loginWithCredentials, logout, hydrated],
+    [currentUser, users, usersForRole, login, loginWithCredentials, logout, hydrated],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

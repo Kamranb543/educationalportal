@@ -1,7 +1,6 @@
 import type { FeeVoucher, VoucherStatus } from "@/types";
 import { students } from "@/data/students";
 import { classes } from "@/data/classes";
-import { courses } from "@/data/courses";
 
 const BILLING_PERIODS = [
   { period: "2026-07", issue: "2026-07-01", due: "2026-07-10" },
@@ -9,14 +8,9 @@ const BILLING_PERIODS = [
   { period: "2026-09", issue: "2026-09-01", due: "2026-09-10" },
 ];
 
-/** Gross monthly tuition for a batch = sum of its course fees. */
+/** Gross monthly tuition for a batch = its consolidated monthly fee. */
 function classMonthlyAmount(classId: string): number {
-  const cls = classes.find((c) => c.id === classId);
-  if (!cls) return 0;
-  return cls.courseIds.reduce(
-    (sum, cid) => sum + (courses.find((c) => c.id === cid)?.feePerStudent ?? 0),
-    0,
-  );
+  return classes.find((c) => c.id === classId)?.monthlyFee ?? 0;
 }
 
 function buildVouchers(): FeeVoucher[] {

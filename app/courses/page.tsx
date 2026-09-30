@@ -1,10 +1,6 @@
-import { RequireRoute } from "@/components/auth/require-permission";
-import { CoursesManager } from "@/components/directories/courses-manager";
+import { redirect } from "next/navigation";
 
-export default function CoursesPage() {
-  return (
-    <RequireRoute href="/courses">
-      <CoursesManager />
-    </RequireRoute>
-  );
+// Master subject management moved to /subjects; deprecated here (Phase 12).
+export default function CoursesRedirect() {
+  redirect("/subjects");
 }

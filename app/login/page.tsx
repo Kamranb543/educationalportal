@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth/auth-context";
 import { config } from "@/lib/config";
@@ -89,6 +90,15 @@ export default function LoginPage() {
             Sign In
           </button>
         </form>
+
+        <div className="mt-5 text-center">
+          <Link
+            href="/onboard"
+            className="text-sm font-medium text-accent hover:underline"
+          >
+            Have an invitation token? Accept it
+          </Link>
+        </div>
 
         <p className="mt-6 rounded-lg border border-dashed border-muted px-4 py-3 text-center text-xs text-secondary">
           Demo credentials — Super Admin{" "}
